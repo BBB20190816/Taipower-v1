@@ -1,0 +1,19 @@
+# 資料檔（不進 repo，由使用者在介面上傳）
+*.xlsx
+*.csv
+*.db
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# Streamlit
+.streamlit/secrets.toml
+
+# OS
+.DS_Store
+Thumbs.db
