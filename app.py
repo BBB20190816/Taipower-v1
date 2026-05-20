@@ -208,9 +208,10 @@ def ms_ex(label, col):
 
 # ── Group 1：批次與單位 ──────────────────────────────────────────────
 with st.sidebar.expander("📦 批次與單位", expanded=True):
-    batches = ms_ex("審查批次", "批次")
-    owners  = ms_ex("典藏單位", "典藏單位")
-    systems = ms_ex("系統別",   "系統別")
+    batches = ms_ex("審查批次",   "批次")
+    owners  = ms_ex("典藏單位",   "典藏單位")
+    systems = ms_ex("系統別",     "系統別")
+    sources = ms_ex("來源對象名稱", "來源對象名稱")
 
 # ── Group 2：典藏分類 ────────────────────────────────────────────────
 with st.sidebar.expander("🗂️ 典藏分類"):
@@ -277,7 +278,7 @@ def af(df, col, chosen):
 
 df = df_all.copy()
 for col, chosen in [
-    ("批次", batches), ("典藏單位", owners), ("系統別", systems),
+    ("批次", batches), ("典藏單位", owners), ("系統別", systems), ("來源對象名稱", sources),
     ("典藏類型", types), ("典藏次類型", subtypes),
     ("原件與否", originals), ("藏品層次", agg_levels),
     ("電業主題", subjects), ("文物屬性", attrs),
@@ -381,7 +382,8 @@ with tab2:
     with col_s1:
         keyword = st.text_input("搜尋關鍵字",
             placeholder="輸入文物名稱、登錄號、關鍵詞、描述…",
-            label_visibility="collapsed")
+            label_visibility="collapsed",
+            key="keyword_input")
     with col_s2:
         search_fields = st.multiselect(
             "搜尋範圍",
@@ -399,7 +401,11 @@ with tab2:
             if field in df_search.columns:
                 mask |= df_search[field].astype(str).str.contains(kw, case=False, na=False)
         df_search = df_search[mask]
-        st.caption(f"搜尋「**{kw}**」，符合 **{len(df_search):,}** 件")
+        cap_col, btn_col = st.columns([6, 1])
+        cap_col.caption(f"搜尋「**{kw}**」，符合 **{len(df_search):,}** 件")
+        if btn_col.button("✕ 清除搜尋", key="clear_kw", use_container_width=True):
+            st.session_state["keyword_input"] = ""
+            st.rerun()
     else:
         st.caption(f"目前篩選結果：**{len(df_search):,}** 件")
 
