@@ -338,10 +338,17 @@ with tab1:
         cc.columns = ["保存狀況", "件數"]
         fig2 = px.pie(cc, names="保存狀況", values="件數",
                       color_discrete_sequence=px.colors.qualitative.Pastel)
-        fig2.update_traces(textinfo="label+value+percent",
-                           texttemplate="%{label}<br>%{value:,} 件 (%{percent})")
-        fig2.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0),
-                           showlegend=False)
+        fig2.update_traces(
+            textinfo="label+value+percent",
+            texttemplate="%{label}<br>%{value:,} 件 (%{percent})",
+            textposition="outside",
+            automargin=True,
+        )
+        fig2.update_layout(
+            height=380,
+            margin=dict(l=40, r=40, t=20, b=20),
+            showlegend=False,
+        )
         st.plotly_chart(fig2, use_container_width=True)
 
     with col_r:
