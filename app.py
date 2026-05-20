@@ -9,7 +9,203 @@ import io
 from pathlib import Path
 
 from data_loader import load_from_uploads
-
+CSS = """
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@500;600&display=swap');
+ 
+/* ══ Global ══════════════════════════════════════════ */
+html, body, [class*="css"] {
+    font-family: 'Noto Sans TC', sans-serif;
+}
+.stApp {
+    background-color: #F7F4EE;
+}
+ 
+/* ══ Top bar（頁面標題區）══════════════════════════════ */
+.stApp header {
+    background: #6B4226 !important;
+}
+h1 {
+    font-family: 'Noto Serif TC', serif;
+    color: #6B4226;
+    border-bottom: 2px solid #B8865A;
+    padding-bottom: 10px;
+    margin-bottom: 4px;
+}
+h2, h3 { color: #3D2210; }
+ 
+/* ══ Sidebar ══════════════════════════════════════════ */
+[data-testid="stSidebar"] {
+    background-color: #F7F4EE;
+    border-right: 2px solid #6B4226;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    font-size: 9px;
+    font-weight: 700;
+    color: #9A7B60;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-top: 14px;
+}
+[data-testid="stSidebar"] [data-testid="stCaption"] {
+    background: #EDE2D2;
+    border-left: 2px solid #6B4226;
+    border-radius: 2px;
+    padding: 5px 9px;
+    color: #6B4226;
+    font-weight: 500;
+}
+ 
+/* ══ Metric cards ═════════════════════════════════════ */
+[data-testid="stMetric"] {
+    background: #FFFFFF;
+    border: 1px solid #D9D1C0;
+    border-left: 3px solid #6B4226;
+    border-radius: 3px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 4px rgba(107,66,38,.07);
+}
+[data-testid="stMetricLabel"] {
+    font-size: 10px !important;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #9A7B60 !important;
+}
+[data-testid="stMetricValue"] {
+    color: #6B4226 !important;
+    font-weight: 700 !important;
+}
+ 
+/* ══ Tabs ═════════════════════════════════════════════ */
+.stTabs [data-baseweb="tab-list"] {
+    border-bottom: 1.5px solid #C9BBA8;
+    gap: 2px;
+    background: transparent;
+}
+.stTabs [data-baseweb="tab"] {
+    border-radius: 3px 3px 0 0;
+    color: #9A7B60;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 8px 14px;
+    background: transparent;
+}
+.stTabs [aria-selected="true"] {
+    background: #EDE2D2 !important;
+    color: #6B4226 !important;
+    font-weight: 700 !important;
+    border-bottom: 2px solid #6B4226 !important;
+}
+ 
+/* ══ Buttons ══════════════════════════════════════════ */
+.stButton > button {
+    background: #6B4226;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 3px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    box-shadow: 0 1px 4px rgba(107,66,38,.20);
+    transition: opacity .15s, box-shadow .15s;
+}
+.stButton > button:hover {
+    opacity: .88;
+    box-shadow: 0 2px 8px rgba(107,66,38,.28);
+}
+.stButton > button[kind="secondary"] {
+    background: transparent;
+    color: #6B4226;
+    border: 1px solid #C9BBA8;
+}
+ 
+/* ══ File uploader ════════════════════════════════════ */
+[data-testid="stFileUploadDropzone"] {
+    border: 1.5px dashed #B8865A;
+    border-radius: 4px;
+    background: #EDE2D2;
+}
+[data-testid="stFileUploadDropzone"]:hover {
+    border-color: #6B4226;
+    background: #E5D8C6;
+}
+ 
+/* ══ Multiselect tags ════════════════════════════════ */
+[data-baseweb="tag"] {
+    background: #EDE2D2 !important;
+    color: #6B4226 !important;
+    border-radius: 2px !important;
+    border: 1px solid #C9BBA8 !important;
+}
+ 
+/* ══ Selectbox / Input ════════════════════════════════ */
+[data-baseweb="select"] > div,
+[data-baseweb="input"] > div {
+    border-color: #C9BBA8 !important;
+    border-radius: 3px !important;
+    background: #FFFFFF !important;
+}
+[data-baseweb="select"] > div:focus-within,
+[data-baseweb="input"] > div:focus-within {
+    border-color: #6B4226 !important;
+    box-shadow: 0 0 0 2px rgba(107,66,38,.12) !important;
+}
+ 
+/* ══ Slider ═══════════════════════════════════════════ */
+[data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
+    background: #6B4226 !important;
+    border-color: #6B4226 !important;
+}
+[data-testid="stSlider"] [data-baseweb="slider"] div[data-testid="stTickBar"] + div > div > div {
+    background: #6B4226 !important;
+}
+ 
+/* ══ Dataframe ════════════════════════════════════════ */
+[data-testid="stDataFrame"] {
+    border: 1px solid #D9D1C0;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(107,66,38,.05);
+}
+ 
+/* ══ Expander ═════════════════════════════════════════ */
+[data-testid="stExpander"] {
+    border: 1px solid #D9D1C0 !important;
+    border-radius: 3px !important;
+    background: #FFFFFF;
+}
+[data-testid="stExpander"] summary {
+    font-weight: 500;
+    color: #6B4226;
+}
+ 
+/* ══ Download button ══════════════════════════════════ */
+[data-testid="stDownloadButton"] > button {
+    background: transparent;
+    color: #6B4226;
+    border: 1px solid #B8865A;
+    border-radius: 3px;
+    font-weight: 500;
+}
+[data-testid="stDownloadButton"] > button:hover {
+    background: #EDE2D2;
+}
+ 
+/* ══ Info / Success / Warning boxes ══════════════════ */
+[data-testid="stAlert"] {
+    border-radius: 3px;
+    border-left-width: 3px;
+}
+ 
+/* ══ Container border ════════════════════════════════ */
+[data-testid="stVerticalBlockBorderWrapper"] > div {
+    border: 1px solid #D9D1C0 !important;
+    border-radius: 4px !important;
+    background: #FFFFFF;
+    box-shadow: 0 1px 4px rgba(107,66,38,.05);
+}
+</style>
+"""
 # ── 頁面設定 ─────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="電業文物 Metadata 分析工具",
@@ -17,6 +213,7 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded",
 )
+st.markdown(CSS, unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════════
 # 上傳區（尚未上傳時顯示，上傳後收起）
