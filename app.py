@@ -18,6 +18,115 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ── 主題 CSS（木質棕 #6B4226 × 溫暖米白 #F7F4EE）────────────────────
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;600;700&family=Noto+Serif+TC:wght@500;600&display=swap');
+
+html, body, [class*="css"] { font-family: 'Noto Sans TC', sans-serif; }
+.stApp { background-color: #F7F4EE; }
+
+h1 {
+    font-family: 'Noto Serif TC', serif;
+    color: #6B4226;
+    border-bottom: 2px solid #B8865A;
+    padding-bottom: 10px;
+}
+h2, h3 { color: #3D2210; }
+
+[data-testid="stSidebar"] {
+    background-color: #F7F4EE;
+    border-right: 2px solid #6B4226;
+}
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    font-size: 9px; font-weight: 700; color: #9A7B60;
+    text-transform: uppercase; letter-spacing: .08em; margin-top: 14px;
+}
+[data-testid="stSidebar"] [data-testid="stCaption"] {
+    background: #EDE2D2; border-left: 2px solid #6B4226;
+    border-radius: 2px; padding: 5px 9px;
+    color: #6B4226; font-weight: 500;
+}
+
+[data-testid="stMetric"] {
+    background: #FFFFFF;
+    border: 1px solid #D9D1C0;
+    border-left: 3px solid #6B4226;
+    border-radius: 3px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 4px rgba(107,66,38,.07);
+}
+[data-testid="stMetricLabel"] {
+    font-size: 10px !important;
+    text-transform: uppercase; letter-spacing: .05em; color: #9A7B60 !important;
+}
+[data-testid="stMetricValue"] { color: #6B4226 !important; font-weight: 700 !important; }
+
+.stTabs [data-baseweb="tab-list"] {
+    border-bottom: 1.5px solid #C9BBA8; gap: 2px; background: transparent;
+}
+.stTabs [data-baseweb="tab"] {
+    border-radius: 3px 3px 0 0; color: #9A7B60;
+    font-size: 12px; font-weight: 500; padding: 8px 14px; background: transparent;
+}
+.stTabs [aria-selected="true"] {
+    background: #EDE2D2 !important; color: #6B4226 !important;
+    font-weight: 700 !important; border-bottom: 2px solid #6B4226 !important;
+}
+
+.stButton > button {
+    background: #6B4226; color: #FFFFFF; border: none; border-radius: 3px;
+    font-family: 'Noto Sans TC', sans-serif; font-weight: 600; font-size: 13px;
+    box-shadow: 0 1px 4px rgba(107,66,38,.20);
+    transition: opacity .15s, box-shadow .15s;
+}
+.stButton > button:hover { opacity: .88; box-shadow: 0 2px 8px rgba(107,66,38,.28); }
+.stButton > button[kind="secondary"] {
+    background: transparent; color: #6B4226; border: 1px solid #C9BBA8;
+}
+
+[data-testid="stFileUploadDropzone"] {
+    border: 1.5px dashed #B8865A; border-radius: 4px; background: #EDE2D2;
+}
+[data-testid="stFileUploadDropzone"]:hover { border-color: #6B4226; background: #E5D8C6; }
+
+[data-baseweb="tag"] {
+    background: #EDE2D2 !important; color: #6B4226 !important;
+    border-radius: 2px !important; border: 1px solid #C9BBA8 !important;
+}
+
+[data-baseweb="select"] > div,
+[data-baseweb="input"] > div {
+    border-color: #C9BBA8 !important; border-radius: 3px !important; background: #FFFFFF !important;
+}
+[data-baseweb="select"] > div:focus-within,
+[data-baseweb="input"] > div:focus-within {
+    border-color: #6B4226 !important; box-shadow: 0 0 0 2px rgba(107,66,38,.12) !important;
+}
+
+[data-testid="stDataFrame"] {
+    border: 1px solid #D9D1C0; border-radius: 3px; overflow: hidden;
+    box-shadow: 0 1px 4px rgba(107,66,38,.05);
+}
+
+[data-testid="stExpander"] {
+    border: 1px solid #D9D1C0 !important; border-radius: 3px !important; background: #FFFFFF;
+}
+[data-testid="stExpander"] summary { font-weight: 500; color: #6B4226; }
+
+[data-testid="stDownloadButton"] > button {
+    background: transparent; color: #6B4226;
+    border: 1px solid #B8865A; border-radius: 3px; font-weight: 500;
+}
+[data-testid="stDownloadButton"] > button:hover { background: #EDE2D2; }
+
+[data-testid="stVerticalBlockBorderWrapper"] > div {
+    border: 1px solid #D9D1C0 !important; border-radius: 4px !important;
+    background: #FFFFFF; box-shadow: 0 1px 4px rgba(107,66,38,.05);
+}
+</style>
+""", unsafe_allow_html=True)
+
 # ══════════════════════════════════════════════════════════════════
 # 上傳區（尚未上傳時顯示，上傳後收起）
 # ══════════════════════════════════════════════════════════════════
@@ -85,54 +194,21 @@ with st.sidebar:
 st.sidebar.title("🔍 篩選條件")
 st.sidebar.caption(f"資料總筆數：{len(df_all):,} 件")
 
-def ms_ex(label, col):
-    """multiselect，標籤顯示選項數，tooltip 預覽所有值。"""
+def ms(label, col):
     opts = sorted(df_all[col].dropna().unique().tolist())
-    preview = "、".join(str(o) for o in opts[:20])
-    if len(opts) > 20:
-        preview += f"… 等 {len(opts)} 種"
-    return st.multiselect(
-        f"{label}（{len(opts)} 種）",
-        opts, default=[],
-        help=preview,
-    )
+    return st.sidebar.multiselect(label, opts, default=[])
 
-# ── Group 1：批次與單位 ──────────────────────────────────────────────
-with st.sidebar.expander("📦 批次與單位", expanded=True):
-    batches = ms_ex("審查批次", "批次")
-    owners  = ms_ex("典藏單位", "典藏單位")
-    systems = ms_ex("系統別",   "系統別")
-
-# ── Group 2：典藏分類 ────────────────────────────────────────────────
-with st.sidebar.expander("🗂️ 典藏分類"):
-    types    = ms_ex("典藏類型",   "典藏類型")
-    subtypes = ms_ex("典藏次類型", "典藏次類型")
-    originals = ms_ex("原件與否",  "原件與否")
-    agg_levels = ms_ex("藏品層次", "藏品層次")
-
-# ── Group 3：主題與屬性 ──────────────────────────────────────────────
-with st.sidebar.expander("🔖 主題與屬性"):
-    subjects = ms_ex("電業主題", "電業主題")
-    attrs    = ms_ex("文物屬性", "文物屬性")
-    materials = ms_ex("主要材質", "主要材質")
-    events   = ms_ex("事件名稱", "事件名稱")
-
-# ── Group 4：狀態與管理 ──────────────────────────────────────────────
-with st.sidebar.expander("✅ 狀態與管理"):
-    conditions  = ms_ex("保存狀況",       "保存狀況")
-    categories  = ms_ex("建議分類",       "建議分類")
-    levels      = ms_ex("分級",           "分級")
-    restrictions = ms_ex("使用限制",      "使用限制")
-    open_flags  = ms_ex("資料開放狀態",   "資料開放狀態")
-
-# ── 已啟用篩選條件摘要 ───────────────────────────────────────────────
-_active = sum(1 for v in [
-    batches, owners, systems, types, subtypes, originals, agg_levels,
-    subjects, attrs, materials, events,
-    conditions, categories, levels, restrictions, open_flags,
-] if v)
-if _active:
-    st.sidebar.info(f"⚡ 已啟用 **{_active}** 個篩選條件")
+st.sidebar.markdown("### 分類篩選")
+batches    = ms("審查批次",   "批次")
+types      = ms("典藏類型",   "典藏類型")
+subtypes   = ms("典藏次類型", "典藏次類型")
+subjects   = ms("電業主題",   "電業主題")
+attrs      = ms("文物屬性",   "文物屬性")
+conditions = ms("保存狀況",   "保存狀況")
+categories = ms("建議分類",   "建議分類")
+levels     = ms("分級",       "分級")
+systems    = ms("系統別",     "系統別")
+owners     = ms("典藏單位",   "典藏單位")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 文物年代（起始西元年）")
@@ -168,13 +244,9 @@ def af(df, col, chosen):
 
 df = df_all.copy()
 for col, chosen in [
-    ("批次", batches), ("典藏單位", owners), ("系統別", systems),
-    ("典藏類型", types), ("典藏次類型", subtypes),
-    ("原件與否", originals), ("藏品層次", agg_levels),
-    ("電業主題", subjects), ("文物屬性", attrs),
-    ("主要材質", materials), ("事件名稱", events),
-    ("保存狀況", conditions), ("建議分類", categories), ("分級", levels),
-    ("使用限制", restrictions), ("資料開放狀態", open_flags),
+    ("批次", batches), ("典藏類型", types), ("典藏次類型", subtypes),
+    ("電業主題", subjects), ("文物屬性", attrs), ("保存狀況", conditions),
+    ("建議分類", categories), ("分級", levels), ("系統別", systems), ("典藏單位", owners),
 ]:
     df = af(df, col, chosen)
 
@@ -283,8 +355,7 @@ with tab2:
     default_cols = [
         "文物登錄號", "文物名稱", "批次", "典藏類型", "典藏次類型",
         "電業主題", "文物屬性", "保存狀況", "起始西元年", "年號",
-        "典藏單位", "主要材質", "關鍵詞", "文物年代類型",
-        "建議分類", "分級", "使用限制", "資料開放狀態",
+        "建議分類", "分級", "典藏單位",
     ]
     chosen_cols = st.multiselect(
         "顯示欄位",
@@ -383,9 +454,9 @@ with tab4:
     st.subheader("↔️ 兩欄位交叉比對")
     cat_cols = [
         "批次", "典藏類型", "典藏次類型", "原件與否", "藏品層次", "系統別",
-        "電業主題", "文物屬性", "主要材質", "事件名稱",
-        "保存狀況", "文物年代類型", "建議分類", "分級",
-        "使用限制", "資料開放狀態", "典藏單位", "來源類型", "數量單位",
+        "電業主題", "文物屬性", "保存狀況", "文物年代類型",
+        "建議分類", "分級", "典藏單位", "來源類型", "資料開放狀態",
+        "主要材質", "數量單位",
     ]
     available = [c for c in cat_cols if c in df.columns]
 
