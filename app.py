@@ -328,8 +328,9 @@ with tab1:
         bc = df["批次"].value_counts().reset_index()
         bc.columns = ["批次", "件數"]
         fig = px.bar(bc, x="件數", y="批次", orientation="h",
-                     color_discrete_sequence=["#5B8DEF"])
-        fig.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0), yaxis_title="")
+                     text="件數", color_discrete_sequence=["#5B8DEF"])
+        fig.update_traces(textposition="outside", texttemplate="%{text:,}")
+        fig.update_layout(height=300, margin=dict(l=0,r=40,t=20,b=0), yaxis_title="")
         st.plotly_chart(fig, use_container_width=True)
 
         st.markdown("**保存狀況分布**")
@@ -337,7 +338,10 @@ with tab1:
         cc.columns = ["保存狀況", "件數"]
         fig2 = px.pie(cc, names="保存狀況", values="件數",
                       color_discrete_sequence=px.colors.qualitative.Pastel)
-        fig2.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0))
+        fig2.update_traces(textinfo="label+value+percent",
+                           texttemplate="%{label}<br>%{value:,} 件 (%{percent})")
+        fig2.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0),
+                           showlegend=False)
         st.plotly_chart(fig2, use_container_width=True)
 
     with col_r:
@@ -345,15 +349,18 @@ with tab1:
         catc = df["建議分類"].value_counts().reset_index()
         catc.columns = ["建議分類", "件數"]
         fig3 = px.bar(catc, x="建議分類", y="件數",
-                      color_discrete_sequence=["#F4845F"])
-        fig3.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0), xaxis_tickangle=-30)
+                      text="件數", color_discrete_sequence=["#F4845F"])
+        fig3.update_traces(textposition="outside", texttemplate="%{text:,}")
+        fig3.update_layout(height=300, margin=dict(l=0,r=0,t=30,b=0), xaxis_tickangle=-30)
         st.plotly_chart(fig3, use_container_width=True)
 
         st.markdown("**文物年代分布（起始西元年）**")
         yr_data = df["起始西元年"].dropna()
         if len(yr_data) > 0:
-            fig4 = px.histogram(yr_data, nbins=30, color_discrete_sequence=["#7EC8A4"])
-            fig4.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0),
+            fig4 = px.histogram(yr_data, nbins=30, color_discrete_sequence=["#7EC8A4"],
+                                text_auto=True)
+            fig4.update_traces(texttemplate="%{y:,}", textposition="outside")
+            fig4.update_layout(height=300, margin=dict(l=0,r=0,t=30,b=0),
                                xaxis_title="西元年", yaxis_title="件數")
             st.plotly_chart(fig4, use_container_width=True)
 
