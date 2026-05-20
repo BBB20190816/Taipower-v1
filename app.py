@@ -422,7 +422,7 @@ with tab2:
     )
     if chosen_cols:
         st.dataframe(df_search[chosen_cols].reset_index(drop=True),
-                     use_container_width=True, height=500)
+                     use_container_width=True, height=620)
 
 # ══════════════════════════════════════════════════════════════════
 # TAB 3：尺寸分析
