@@ -33,7 +33,7 @@ COL = {
 }
 
 # 分類表的辨識關鍵字（出現在檔名中即判定為分類表）
-CLASS_KEYWORDS = ["建議文資分類", "文資建議分類", "圖片資訊及建議"]
+CLASS_KEYWORDS = ["建議文資分類", "圖片資訊及建議"]
 
 # 本機模式的批次對照表（依檔名）
 BATCH_MAP = {
@@ -152,11 +152,8 @@ def load_from_uploads(uploaded_files) -> pd.DataFrame:
                 xl = pd.ExcelFile(BytesIO(file_bytes))
                 if "metadata維護" in xl.sheet_names:
                     main_frames.append(_parse_main_bytes(file_bytes, f.name))
-                elif any("文資" in s or "分類" in s for s in xl.sheet_names):
-                    # 兜底：檔名未命中關鍵字，但工作表名稱含「文資」或「分類」→ 當分類表處理
-                    class_frames.append(_parse_class_bytes(file_bytes))
             except Exception:
-                pass  # 無法解析的 xlsx 略過
+                pass  # 非主表 xlsx 略過
 
     if not main_frames:
         raise ValueError("找不到有效的主表（需含「metadata維護」工作表）。請確認上傳了正確的檔案。")
@@ -183,8 +180,6 @@ def load_all(base_dir: str = ".") -> pd.DataFrame:
                 xl = pd.ExcelFile(BytesIO(file_bytes))
                 if "metadata維護" in xl.sheet_names:
                     main_frames.append(_parse_main_bytes(file_bytes, fpath.name))
-                elif any("文資" in s or "分類" in s for s in xl.sheet_names):
-                    class_frames.append(_parse_class_bytes(file_bytes))
             except Exception:
                 pass
 
