@@ -197,21 +197,46 @@ with st.sidebar:
 st.sidebar.title("🔍 篩選條件")
 st.sidebar.caption(f"資料總筆數：{len(df_all):,} 件")
 
-def ms(label, col):
+def ms_ex(label, col):
     opts = sorted(df_all[col].dropna().unique().tolist())
-    return st.sidebar.multiselect(label, opts, default=[])
+    preview = "、".join(str(o) for o in opts[:20])
+    if len(opts) > 20:
+        preview += f"… 等 {len(opts)} 種"
+    return st.multiselect(f"{label}（{len(opts)} 種）", opts, default=[], help=preview)
 
-st.sidebar.markdown("### 分類篩選")
-batches    = ms("審查批次",   "批次")
-types      = ms("典藏類型",   "典藏類型")
-subtypes   = ms("典藏次類型", "典藏次類型")
-subjects   = ms("電業主題",   "電業主題")
-attrs      = ms("文物屬性",   "文物屬性")
-conditions = ms("保存狀況",   "保存狀況")
-categories = ms("建議分類",   "建議分類")
-levels     = ms("分級",       "分級")
-systems    = ms("系統別",     "系統別")
-owners     = ms("典藏單位",   "典藏單位")
+with st.sidebar.expander("📦 批次與單位", expanded=True):
+    batches  = ms_ex("審查批次",    "批次")
+    owners   = ms_ex("典藏單位",    "典藏單位")
+    systems  = ms_ex("系統別",      "系統別")
+    sources  = ms_ex("來源對象名稱", "來源對象名稱")
+
+with st.sidebar.expander("🗂️ 典藏分類"):
+    types      = ms_ex("典藏類型",   "典藏類型")
+    subtypes   = ms_ex("典藏次類型", "典藏次類型")
+    originals  = ms_ex("原件與否",   "原件與否")
+    agg_levels = ms_ex("藏品層次",   "藏品層次")
+
+with st.sidebar.expander("🔖 主題與屬性"):
+    subjects  = ms_ex("電業主題", "電業主題")
+    attrs     = ms_ex("文物屬性", "文物屬性")
+    materials = ms_ex("主要材質", "主要材質")
+    events    = ms_ex("事件名稱", "事件名稱")
+
+with st.sidebar.expander("✅ 狀態與管理"):
+    conditions   = ms_ex("保存狀況",     "保存狀況")
+    categories   = ms_ex("建議分類",     "建議分類")
+    levels       = ms_ex("分級",         "分級")
+    restrictions = ms_ex("使用限制",     "使用限制")
+    open_flags   = ms_ex("資料開放狀態", "資料開放狀態")
+
+_active = sum(1 for v in [
+    batches, owners, systems, sources,
+    types, subtypes, originals, agg_levels,
+    subjects, attrs, materials, events,
+    conditions, categories, levels, restrictions, open_flags,
+] if v)
+if _active:
+    st.sidebar.info(f"⚡ 已啟用 **{_active}** 個篩選條件")
 
 st.sidebar.markdown("---")
 st.sidebar.markdown("### 文物年代（起始西元年）")
@@ -247,9 +272,13 @@ def af(df, col, chosen):
 
 df = df_all.copy()
 for col, chosen in [
-    ("批次", batches), ("典藏類型", types), ("典藏次類型", subtypes),
-    ("電業主題", subjects), ("文物屬性", attrs), ("保存狀況", conditions),
-    ("建議分類", categories), ("分級", levels), ("系統別", systems), ("典藏單位", owners),
+    ("批次", batches), ("典藏單位", owners), ("系統別", systems), ("來源對象名稱", sources),
+    ("典藏類型", types), ("典藏次類型", subtypes),
+    ("原件與否", originals), ("藏品層次", agg_levels),
+    ("電業主題", subjects), ("文物屬性", attrs),
+    ("主要材質", materials), ("事件名稱", events),
+    ("保存狀況", conditions), ("建議分類", categories), ("分級", levels),
+    ("使用限制", restrictions), ("資料開放狀態", open_flags),
 ]:
     df = af(df, col, chosen)
 
@@ -294,8 +323,9 @@ with tab1:
         bc = df["批次"].value_counts().reset_index()
         bc.columns = ["批次", "件數"]
         fig = px.bar(bc, x="件數", y="批次", orientation="h",
-                     color_discrete_sequence=["#5B8DEF"])
-        fig.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0), yaxis_title="")
+                     text="件數", color_discrete_sequence=["#5B8DEF"])
+        fig.update_traces(textposition="outside", texttemplate="%{text:,}")
+        fig.update_layout(height=300, margin=dict(l=0,r=40,t=20,b=0), yaxis_title="")
         st.plotly_chart(fig, use_container_width=True)
 
         st.markdown("**保存狀況分布**")
@@ -303,7 +333,13 @@ with tab1:
         cc.columns = ["保存狀況", "件數"]
         fig2 = px.pie(cc, names="保存狀況", values="件數",
                       color_discrete_sequence=px.colors.qualitative.Pastel)
-        fig2.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0))
+        fig2.update_traces(
+            textinfo="label+value+percent",
+            texttemplate="%{label}<br>%{value:,} 件 (%{percent})",
+            textposition="outside",
+            automargin=True,
+        )
+        fig2.update_layout(height=380, margin=dict(l=40,r=40,t=20,b=20), showlegend=False)
         st.plotly_chart(fig2, use_container_width=True)
 
     with col_r:
@@ -311,15 +347,18 @@ with tab1:
         catc = df["建議分類"].value_counts().reset_index()
         catc.columns = ["建議分類", "件數"]
         fig3 = px.bar(catc, x="建議分類", y="件數",
-                      color_discrete_sequence=["#F4845F"])
-        fig3.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0), xaxis_tickangle=-30)
+                      text="件數", color_discrete_sequence=["#F4845F"])
+        fig3.update_traces(textposition="outside", texttemplate="%{text:,}")
+        fig3.update_layout(height=300, margin=dict(l=0,r=0,t=30,b=0), xaxis_tickangle=-30)
         st.plotly_chart(fig3, use_container_width=True)
 
         st.markdown("**文物年代分布（起始西元年）**")
         yr_data = df["起始西元年"].dropna()
         if len(yr_data) > 0:
-            fig4 = px.histogram(yr_data, nbins=30, color_discrete_sequence=["#7EC8A4"])
-            fig4.update_layout(height=300, margin=dict(l=0,r=0,t=20,b=0),
+            fig4 = px.histogram(yr_data, nbins=30, color_discrete_sequence=["#7EC8A4"],
+                                text_auto=True)
+            fig4.update_traces(texttemplate="%{y:,}", textposition="outside")
+            fig4.update_layout(height=300, margin=dict(l=0,r=0,t=30,b=0),
                                xaxis_title="西元年", yaxis_title="件數")
             st.plotly_chart(fig4, use_container_width=True)
 
@@ -333,7 +372,8 @@ with tab2:
     with col_s1:
         keyword = st.text_input("搜尋關鍵字",
             placeholder="輸入文物名稱、登錄號、關鍵詞、描述…",
-            label_visibility="collapsed")
+            label_visibility="collapsed",
+            key="keyword_input")
     with col_s2:
         search_fields = st.multiselect(
             "搜尋範圍",
@@ -351,14 +391,19 @@ with tab2:
             if field in df_search.columns:
                 mask |= df_search[field].astype(str).str.contains(kw, case=False, na=False)
         df_search = df_search[mask]
-        st.caption(f"搜尋「**{kw}**」，符合 **{len(df_search):,}** 件")
+        cap_col, btn_col = st.columns([6, 1])
+        cap_col.caption(f"搜尋「**{kw}**」，符合 **{len(df_search):,}** 件")
+        if btn_col.button("✕ 清除搜尋", key="clear_kw", use_container_width=True):
+            st.session_state["keyword_input"] = ""
+            st.rerun()
     else:
         st.caption(f"目前篩選結果：**{len(df_search):,}** 件")
 
     default_cols = [
         "文物登錄號", "文物名稱", "批次", "典藏類型", "典藏次類型",
         "電業主題", "文物屬性", "保存狀況", "起始西元年", "年號",
-        "建議分類", "分級", "典藏單位",
+        "典藏單位", "主要材質", "關鍵詞", "文物年代類型",
+        "建議分類", "分級", "使用限制", "資料開放狀態",
     ]
     chosen_cols = st.multiselect(
         "顯示欄位",
@@ -367,7 +412,7 @@ with tab2:
     )
     if chosen_cols:
         st.dataframe(df_search[chosen_cols].reset_index(drop=True),
-                     use_container_width=True, height=500)
+                     use_container_width=True, height=620)
 
 # ══════════════════════════════════════════════════════════════════
 # TAB 3：尺寸分析
